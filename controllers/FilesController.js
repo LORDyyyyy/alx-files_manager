@@ -16,7 +16,7 @@ class FilesController {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const usersCollection = dbClient.db.collection('users');
+    const usersCollection = await dbClient.db.collection('users');
     const user = await usersCollection.findOne({ _id: ObjectId(userId) });
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -36,7 +36,7 @@ class FilesController {
     }
 
     if (parentId) {
-      const filesCollection = dbClient.db.collection('files');
+      const filesCollection = await dbClient.db.collection('files');
       const parentFile = await filesCollection.findOne({
         _id: ObjectId(parentId),
       });
@@ -57,7 +57,7 @@ class FilesController {
       fs.writeFileSync(localPath, fileBuffer);
     }
 
-    const filesCollection = dbClient.db.collection('files');
+    const filesCollection = await dbClient.db.collection('files');
     const newFile = {
       userId: ObjectId(userId),
       name,
