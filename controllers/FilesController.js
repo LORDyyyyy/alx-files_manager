@@ -1,6 +1,6 @@
 import dbClient from '../utils/db';
 
-class UsersController {
+class FilesController {
   static async postUpload(req, res) {
     const { name, type, parentId } = req.body;
     if (!name) {
@@ -12,6 +12,7 @@ class UsersController {
     if (parentId && !parent) {
       return res.status(400).send({ error: 'Parent not found' });
     }
+
     const newFile = await dbClient.files.insertOne({
       name,
       type,
@@ -26,4 +27,4 @@ class UsersController {
   }
 }
 
-module.exports = UsersController;
+module.exports = FilesController;
