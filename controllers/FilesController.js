@@ -4,6 +4,20 @@ const fs = require('fs');
 const dbClient = require('../utils/db');
 const redisClient = require('../utils/redis');
 
+function changeKey(obj, oldKey, newKey) {
+  let updatedObj = {};
+
+  for (let key in obj) {
+    if (key === oldKey) {
+      updatedObj[newKey] = obj[key];
+    } else {
+      updatedObj[key] = obj[key];
+    }
+  }
+
+  return updatedObj;
+}
+
 class FilesController {
   static async postUpload(req, res) {
     const token = req.headers['x-token'];
@@ -48,7 +62,10 @@ class FilesController {
       }
     }
 
-    let localPath;
+    if (!fs.existsSync('/tmp/files_manager/')) {
+      fs.mkdirSync('/tmp/files_manager/');
+    }
+    let localPath = '';
     if (type !== 'folder') {
       const folderPath = process.env.FOLDER_PATH || '/tmp/files_manager';
       const fileId = uuidv4();
@@ -64,11 +81,14 @@ class FilesController {
       type,
       isPublic: isPublic || false,
       parentId: parentId || '0',
-      localPath: localPath || null,
     };
+
+    if (type !== 'folder') {
+      newFile['localPath'] = localPath;
+    }
     const result = await filesCollection.insertOne(newFile);
 
-    return res.status(201).json(result.ops[0]);
+    return res.status(201).json(changeKey(result.ops[0], "_id", "id"));
   }
 }
 
