@@ -5,9 +5,9 @@ const dbClient = require('../utils/db');
 const redisClient = require('../utils/redis');
 
 function changeKey(obj, oldKey, newKey) {
-  let updatedObj = {};
+  const updatedObj = {};
 
-  for (let key in obj) {
+  for (const key in obj) {
     if (key === oldKey) {
       updatedObj[newKey] = obj[key];
     } else {
@@ -84,11 +84,11 @@ class FilesController {
     };
 
     if (type !== 'folder') {
-      newFile['localPath'] = localPath;
+      newFile.localPath = localPath;
     }
     const result = await filesCollection.insertOne(newFile);
 
-    return res.status(201).json(changeKey(result.ops[0], "_id", "id"));
+    return res.status(201).json(changeKey(result.ops[0], '_id', 'id'));
   }
 }
 
