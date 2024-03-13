@@ -94,31 +94,22 @@ class FilesController {
 
   static async getIndex(req, res) {
     const { userId } = req;
-    const filesCollection = await dbClient.client.collection('files');
-
-    const page = parseInt(req.query.page, 10) || 0;
-    const pageSize = 20;
-    const skip = page * pageSize;
     const parentId = req.query.parentId || 0;
-
-    const aggregationPipeline = [
-      { $match: { userId: ObjectId(userId), parentId: ObjectId(parentId) } },
-      { $skip: skip },
-      { $limit: pageSize },
-    ];
-
-    const items = await filesCollection
-      .aggregate(aggregationPipeline)
+    const page = req.query.page || 0;
+    const itemsPerPage = 20;
+    const filesCollection = await dbClient.client.collection('files');
+    const filesForUser = await filesCollection
+      .find({ userId: ObjectId(userId), parentId: String(parentId) })
+      .skip(Number(page) * itemsPerPage)
+      .limit(itemsPerPage)
       .toArray();
 
-    const modifyResult = items.map((file) => {
+    const files = filesForUser.map((file) => {
       const { _id: id, ...rest } = file;
-      const newFile = { id, ...rest };
-
-      return newFile;
+      return { id, ...rest };
     });
 
-    return res.status(200).json(modifyResult);
+    return res.status(200).json(files);
   }
 
   static async putPublish(req, res) {
