@@ -1,6 +1,6 @@
-const dbClient = require('../utils/db');
-const redisClient = require('../utils/redis');
 const { ObjectId } = require('mongodb');
+const dbClient = require('./db');
+const redisClient = require('./redis');
 
 class MiddleWare {
   static async userAuth(req, res, next) {
@@ -21,7 +21,7 @@ class MiddleWare {
     }
     req.userId = userId;
     req.user = user;
-    next();
+    return next();
   }
 }
 
