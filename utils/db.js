@@ -2,18 +2,22 @@ const mongodb = require('mongodb');
 
 class DBClient {
   constructor() {
-    this.uri = `mongodb://${process.env.DB_HOST || 'localhost'}:${
-      process.env.DB_PORT || 27017
-    }`;
+    this.client = null;
 
-    this.client = new mongodb.MongoClient(this.uri);
+    this.mongoClinent = new mongodb.MongoClient(
+      `mongodb://${process.env.DB_HOST || 'localhost'}:${
+        process.env.DB_PORT || 27017
+      }`,
+    );
 
-    this.client.connect((err) => {
+    this.mongoClinent.connect((err) => {
       if (err) {
-        console.log(err.message);
         this.client = null;
+        console.log(err.message);
       }
-      this.client = this.client.db(process.env.DB_DATABASE || 'files_manager');
+      this.client = this.mongoClinent.db(
+        process.env.DB_DATABASE || 'files_manager',
+      );
     });
   }
 
