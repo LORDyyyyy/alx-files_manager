@@ -24,6 +24,7 @@ class FilesController {
       const parentFile = await filesCollection.findOne({
         _id: ObjectId(parentId),
       });
+
       if (!parentFile) {
         return res.status(400).json({ error: 'Parent not found' });
       }
@@ -32,13 +33,14 @@ class FilesController {
       }
     }
 
-    const folderPath = process.env.FOLDER_PATH || '/tmp/files_manager';
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath, true);
-    }
-
     let localPath = '';
+
     if (type !== 'folder') {
+      const folderPath = process.env.FOLDER_PATH || '/tmp/files_manager';
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, true);
+      }
+
       const fileId = uuidv4();
       localPath = `${folderPath}/${fileId}`;
       const fileBuffer = Buffer.from(data, 'base64');
