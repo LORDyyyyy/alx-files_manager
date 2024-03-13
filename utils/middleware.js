@@ -21,8 +21,10 @@ class MiddleWare {
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
+
     req.userId = userId;
     req.user = user;
+
     return next();
   }
 }
