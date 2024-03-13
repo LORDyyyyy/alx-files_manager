@@ -20,4 +20,7 @@ router.get('/users/me', AuthController.getMe);
 router.get('/files/:id', MiddleWare.userAuth, FilesController.getShow);
 router.get('/files', MiddleWare.userAuth, FilesController.getIndex);
 
+router.put('/files/:id/publish', MiddleWare.userAuth, FilesController.putPublish);
+router.put('/files/:id/unpublish', MiddleWare.userAuth, FilesController.putUnpublish);
+
 module.exports = router;

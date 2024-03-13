@@ -88,7 +88,85 @@ class FilesController {
   }
 
   static async getIndex(req, res) {
-    return res.send('TODO');
+    const { userId } = req;
+    const filesCollection = await dbClient.client.collection('files');
+
+    const page = parseInt(req.query.page) || 0;
+    const pageSize = 20;
+    const skip = page * pageSize;
+    const parentId = req.query.parentId || 0;
+
+    let aggregationPipeline = [
+      { $match: { userId: ObjectId(userId), parentId: ObjectId(parentId) } },
+      { $skip: skip },
+      { $limit: pageSize },
+    ];
+
+    const items = await filesCollection
+      .aggregate(aggregationPipeline)
+      .toArray();
+    const modifyResult = items.map((file) => ({
+      ...file,
+      id: file._id.toString(),
+      _id: undefined,
+    }));
+    return res.status(200).json(modifyResult);
+  }
+
+  static async putPublish(req, res) {
+    const { userId } = req;
+    const fileId = req.params.id;
+
+    const filesCollection = await dbClient.client.collection('files');
+    let fileForUser = await filesCollection.findOne({
+      userId: ObjectId(userId),
+      _id: ObjectId(fileId),
+    });
+
+    if (!fileForUser) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    await filesCollection.updateOne(
+      {
+        userId: ObjectId(userId),
+        _id: ObjectId(fileId),
+      },
+      { $set: { isPublic: true } },
+    );
+
+    fileForUser = await filesCollection.findOne({
+      _id: ObjectId(fileId),
+    });
+    return res.status(200).json(fileForUser);
+  }
+
+  static async putUnpublish(req, res) {
+    const { userId } = req;
+    const fileId = req.params.id;
+
+    const filesCollection = await dbClient.client.collection('files');
+    let fileForUser = await filesCollection.findOne({
+      userId: ObjectId(userId),
+      _id: ObjectId(fileId),
+    });
+
+    if (!fileForUser) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    await filesCollection.updateOne(
+      {
+        userId: ObjectId(userId),
+        _id: ObjectId(fileId),
+      },
+      { $set: { isPublic: false } },
+    );
+
+    fileForUser = await filesCollection.findOne({
+      _id: ObjectId(fileId),
+    });
+    return res.status(200).json(fileForUser);
   }
 }
 
