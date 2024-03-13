@@ -87,10 +87,9 @@ class FilesController {
     });
   }
 
-  // static async getIndex(req, res) {
-  //   const { userId } = req;
-  //   const { user } = req;
-  // }
+  static async getIndex(req, res) {
+        return res.send("TODO");
+  }
 }
 
 module.exports = FilesController;

@@ -8,10 +8,10 @@ class UsersController {
     if (!email) return res.status(400).send({ error: 'Missing email' });
     if (!password) return res.status(400).send({ error: 'Missing password' });
 
-    const user = await dbClient.db.collection('users').findOne({ email });
+    const user = await dbClient.client.collection('users').findOne({ email });
     if (user) return res.status(400).send({ error: 'Already exist' });
 
-    const result = await dbClient.db
+    const result = await dbClient.client
       .collection('users')
       .insertOne({ email, password: sha1(password) });
 

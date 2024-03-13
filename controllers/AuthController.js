@@ -16,7 +16,7 @@ class AuthController {
     const [email, password] = decodedCredentials.split(':');
 
     try {
-      const users = await dbClient.db.collection('users');
+      const users = await dbClient.client.collection('users');
       const user = await users.findOne({ email, password: sha1(password) });
 
       if (!user) {
@@ -58,7 +58,7 @@ class AuthController {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const users = await dbClient.db.collection('users');
+    const users = await dbClient.client.collection('users');
     const user = await users.findOne({ _id: ObjectId(userId) });
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });

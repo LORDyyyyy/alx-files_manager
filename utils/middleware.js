@@ -14,7 +14,7 @@ class MiddleWare {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const usersCollection = await dbClient.db.collection('users');
+    const usersCollection = await dbClient.client.collection('users');
     const user = await usersCollection.findOne({ _id: ObjectId(userId) });
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
