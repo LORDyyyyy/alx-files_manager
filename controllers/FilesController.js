@@ -109,11 +109,14 @@ class FilesController {
     const items = await filesCollection
       .aggregate(aggregationPipeline)
       .toArray();
-    const modifyResult = items.map((file) => ({
-      ...file,
-      id: file._id.toString(),
-      _id: undefined,
-    }));
+
+    const modifyResult = items.map((file) => {
+      const { _id: id, ...rest } = file;
+      const newFile = { id, ...rest };
+
+      return newFile;
+    });
+
     return res.status(200).json(modifyResult);
   }
 
