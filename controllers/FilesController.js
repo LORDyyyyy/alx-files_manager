@@ -1,5 +1,6 @@
 const { ObjectId } = require('mongodb');
 const { v4: uuidv4 } = require('uuid');
+const mime = require('mime-types');
 const fs = require('fs');
 const dbClient = require('../utils/db');
 
@@ -174,6 +175,38 @@ class FilesController {
       _id: ObjectId(fileId),
     });
     return res.status(200).json(fileForUser);
+  }
+
+  static async getFile(req, res) {
+    const { userId } = req;
+    const fileId = req.params.id;
+
+    const filesCollection = await dbClient.client.collection('files');
+    const file = await filesCollection.findOne({
+      _id: ObjectId(fileId),
+    });
+
+    if (!file) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    if (!file.isPublic && file.userId.toString() !== userId) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    if (file.type === 'folder') {
+      return res.status(400).json({ error: "A folder doesn't have content" });
+    }
+
+    if (!fs.existsSync(file.localPath)) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    const mimeType = mime.lookup(file.name);
+
+    res.setHeader('Content-Type', mimeType);
+    const fileContent = fs.readFileSync(file.localPath, 'utf8');
+    return res.send(fileContent);
   }
 }
 
