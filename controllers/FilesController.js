@@ -170,11 +170,11 @@ class FilesController {
 
   static async getFile(req, res) {
     const { userId } = req;
-    const ID = req.params.id;
+    const fileId = req.params.id;
 
     const filesCollection = await dbClient.client.collection('files');
     const file = await filesCollection.findOne({
-      _id: ObjectId(ID),
+      _id: ObjectId(fileId),
     });
 
     if (!file) {
@@ -194,10 +194,9 @@ class FilesController {
     }
 
     const mimeType = mime.lookup(file.name);
-
-    res.setHeader('Content-Type', mimeType);
     const fileContent = fs.readFileSync(file.localPath, 'utf8');
 
+    res.setHeader('Content-Type', mimeType);
     return res.send(fileContent);
   }
 }
