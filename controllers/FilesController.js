@@ -179,11 +179,11 @@ class FilesController {
 
   static async getFile(req, res) {
     const { userId } = req;
-    const fileId = req.params.id;
+    const ID = req.params.id;
 
     const filesCollection = await dbClient.client.collection('files');
     const file = await filesCollection.findOne({
-      _id: ObjectId(fileId),
+      _id: ObjectId(ID),
     });
 
     if (!file) {
@@ -206,6 +206,7 @@ class FilesController {
 
     res.setHeader('Content-Type', mimeType);
     const fileContent = fs.readFileSync(file.localPath, 'utf8');
+
     return res.send(fileContent);
   }
 }
