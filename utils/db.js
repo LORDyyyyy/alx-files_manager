@@ -4,16 +4,16 @@ class DBClient {
   constructor() {
     this.uri = `mongodb://${process.env.DB_HOST || 'localhost'}:${
       process.env.DB_PORT || 27017
-    }/${process.env.DB_DATABASE || 'files_manager'}`;
+    }`;
 
     this.client = new mongodb.MongoClient(this.uri);
 
-    this.client.connect((err, client) => {
+    this.client.connect((err) => {
       if (err) {
         console.log(err.message);
         this.client = null;
       }
-      this.client = client;
+      this.client = this.client.db(process.env.DB_DATABASE || 'files_manager');
     });
   }
 
