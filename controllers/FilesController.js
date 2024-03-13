@@ -2,39 +2,12 @@ const { ObjectId } = require('mongodb');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const dbClient = require('../utils/db');
-const redisClient = require('../utils/redis');
-
-function changeKey(obj, oldKey, newKey) {
-  const updatedObj = {};
-
-  for (const key in obj) {
-    if (key === oldKey) {
-      updatedObj[newKey] = obj[key];
-    } else {
-      updatedObj[key] = obj[key];
-    }
-  }
-
-  return updatedObj;
-}
-
-function ObjectIdToString(obj) {
-  if (Object.keys(obj).includes["_id"]) {
-    obj['_id'] = obj['_id'].toString();
-  }
-
-  if (Object.keys(obj).includes["UserId"]) {
-    obj['UserId'] = obj['UserId'].toString();
-  }
-  return obj;
-}
 
 class FilesController {
   static async postUpload(req, res) {
-
     // eslint-disable-next-line object-curly-newline
     const { name, type, data, parentId, isPublic } = req.body;
-    const userId = req.userId;
+    const { userId } = req;
 
     if (!name) {
       return res.status(400).json({ error: 'Missing name' });
@@ -74,7 +47,7 @@ class FilesController {
 
     const filesCollection = await dbClient.db.collection('files');
     const newFile = {
-      userId: userId,
+      userId,
       name,
       type,
       isPublic,
@@ -86,26 +59,38 @@ class FilesController {
     }
     const result = await filesCollection.insertOne(newFile);
 
-    return res.status(201).json(changeKey(result.ops[0], '_id', 'id'));
+    const { _id: id, ...rest } = result.ops[0];
+    const newResult = { id, ...rest };
+
+    return res.status(201).json(newResult);
   }
 
   static async getShow(req, res) {
-    const userId = req.userId;
-    const user = req.user;
+    const { userId } = req;
     const filesCollection = await dbClient.db.collection('files');
-    const fileForUser = await filesCollection.findOne({ userId: ObjectId(userId), _id: ObjectId(req.params.id) });
+    const fileForUser = await filesCollection.findOne({
+      userId: ObjectId(userId),
+      _id: ObjectId(req.params.id),
+    });
 
     if (!fileForUser) {
       return res.status(404).json({ error: 'Not found' });
     }
 
-    return res.status(200).json(ObjectIdToString(changeKey(fileForUser, '_id', 'id')));
+    const { _id: id, ...rest } = fileForUser;
+    const newFileForUser = { id, ...rest };
+
+    return res.status(200).json({
+      id: id.toString(),
+      userId: userId.toString(),
+      ...newFileForUser,
+    });
   }
 
-  static async getIndex(req, res) {
-    const userId = req.userId;
-    const user = req.user;
-  }
+  // static async getIndex(req, res) {
+  //   const { userId } = req;
+  //   const { user } = req;
+  // }
 }
 
 module.exports = FilesController;
