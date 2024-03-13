@@ -41,13 +41,15 @@ class FilesController {
         fs.mkdirSync(folderPath, true);
       }
 
-      const fileId = uuidv4();
-      localPath = `${folderPath}/${fileId}`;
+      localPath = `${folderPath}/${uuidv4()}`;
+
       const fileBuffer = Buffer.from(data, 'base64');
+
       fs.writeFileSync(localPath, fileBuffer);
     }
 
     const filesCollection = await dbClient.client.collection('files');
+
     const newFile = {
       userId,
       name,
