@@ -20,7 +20,7 @@ class FilesController {
     }
 
     if (parentId) {
-      const filesCollection = await dbClient.db.collection('files');
+      const filesCollection = await dbClient.client.collection('files');
       const parentFile = await filesCollection.findOne({
         _id: ObjectId(parentId),
       });
@@ -45,7 +45,7 @@ class FilesController {
       fs.writeFileSync(localPath, fileBuffer);
     }
 
-    const filesCollection = await dbClient.db.collection('files');
+    const filesCollection = await dbClient.client.collection('files');
     const newFile = {
       userId,
       name,
@@ -67,7 +67,7 @@ class FilesController {
 
   static async getShow(req, res) {
     const { userId } = req;
-    const filesCollection = await dbClient.db.collection('files');
+    const filesCollection = await dbClient.client.collection('files');
     const fileForUser = await filesCollection.findOne({
       userId: ObjectId(userId),
       _id: ObjectId(req.params.id),
