@@ -1,9 +1,9 @@
-import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
+import dbClient from '../utils/db';
 
 class AppController {
   static getStatus(req, res) {
-    if (dbClient.isAlive() && redisClient.isAlive()) {
+    if (redisClient.isAlive() && dbClient.isAlive()) {
       res.status(200).send({ redis: true, db: true });
     }
   }
