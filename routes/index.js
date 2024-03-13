@@ -11,14 +11,15 @@ router.get('/status', AppController.getStatus);
 router.get('/stats', AppController.getStats);
 
 router.post('/users', UsersController.postNew);
-router.post('/files', MiddleWare.userAuth, FilesController.postUpload);
 
 router.get('/connect', AuthController.getConnect);
 router.get('/disconnect', AuthController.getDisconnect);
 router.get('/users/me', AuthController.getMe);
 
-router.get('/files/:id', MiddleWare.userAuth, FilesController.getShow);
+router.post('/files', MiddleWare.userAuth, FilesController.postUpload);
+
 router.get('/files', MiddleWare.userAuth, FilesController.getIndex);
+router.get('/files/:id', MiddleWare.userAuth, FilesController.getShow);
 
 router.put('/files/:id/publish', MiddleWare.userAuth, FilesController.putPublish);
 router.put('/files/:id/unpublish', MiddleWare.userAuth, FilesController.putUnpublish);
