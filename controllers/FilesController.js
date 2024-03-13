@@ -91,12 +91,12 @@ class FilesController {
     const { userId } = req;
     const filesCollection = await dbClient.client.collection('files');
 
-    const page = parseInt(req.query.page) || 0;
+    const page = parseInt(req.query.page, 10) || 0;
     const pageSize = 20;
     const skip = page * pageSize;
     const parentId = req.query.parentId || 0;
 
-    let aggregationPipeline = [
+    const aggregationPipeline = [
       { $match: { userId: ObjectId(userId), parentId: ObjectId(parentId) } },
       { $skip: skip },
       { $limit: pageSize },
