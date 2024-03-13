@@ -62,12 +62,13 @@ class FilesController {
       }
     }
 
-    if (!fs.existsSync('/tmp/files_manager/')) {
-      fs.mkdirSync('/tmp/files_manager/');
+    const folderPath = process.env.FOLDER_PATH || '/tmp/files_manager';
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath, true);
     }
+
     let localPath = '';
     if (type !== 'folder') {
-      const folderPath = process.env.FOLDER_PATH || '/tmp/files_manager';
       const fileId = uuidv4();
       localPath = `${folderPath}/${fileId}`;
       const fileBuffer = Buffer.from(data, 'base64');
@@ -76,11 +77,11 @@ class FilesController {
 
     const filesCollection = await dbClient.db.collection('files');
     const newFile = {
-      userId: ObjectId(userId),
+      userId: userId,
       name,
       type,
-      isPublic: isPublic || false,
-      parentId: parentId || '0',
+      isPublic,
+      parentId: parentId || 0,
     };
 
     if (type !== 'folder') {
