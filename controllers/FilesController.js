@@ -18,6 +18,17 @@ function changeKey(obj, oldKey, newKey) {
   return updatedObj;
 }
 
+function ObjectIdToString(obj) {
+  if (Object.keys(obj).includes["_id"]) {
+    obj['_id'] = obj['_id'].toString();
+  }
+
+  if (Object.keys(obj).includes["UserId"]) {
+    obj['UserId'] = obj['UserId'].toString();
+  }
+  return obj;
+}
+
 class FilesController {
   static async postUpload(req, res) {
     const token = req.headers['x-token'];
@@ -90,6 +101,37 @@ class FilesController {
     const result = await filesCollection.insertOne(newFile);
 
     return res.status(201).json(changeKey(result.ops[0], '_id', 'id'));
+  }
+
+  static async getShow(req, res) {
+    const token = req.headers['x-token'];
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const userId = await redisClient.get(`auth_${token}`);
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const usersCollection = await dbClient.db.collection('users');
+    const user = await usersCollection.findOne({ _id: ObjectId(userId) });
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const filesCollection = await dbClient.db.collection('files');
+    const fileForUser = await filesCollection.findOne({ userId: ObjectId(userId), _id: ObjectId(req.params.id)});
+
+    if (!fileForUser) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    return res.status(200).json(ObjectIdToString(changeKey(fileForUser, '_id', 'id')));
+  }
+
+  static async getIndex(req, res) {
+    // TODO
   }
 }
 
