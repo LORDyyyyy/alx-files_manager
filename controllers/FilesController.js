@@ -31,24 +31,10 @@ function ObjectIdToString(obj) {
 
 class FilesController {
   static async postUpload(req, res) {
-    const token = req.headers['x-token'];
-    if (!token) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const userId = await redisClient.get(`auth_${token}`);
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const usersCollection = await dbClient.db.collection('users');
-    const user = await usersCollection.findOne({ _id: ObjectId(userId) });
-    if (!user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
 
     // eslint-disable-next-line object-curly-newline
     const { name, type, data, parentId, isPublic } = req.body;
+    const userId = req.userId;
 
     if (!name) {
       return res.status(400).json({ error: 'Missing name' });
@@ -104,24 +90,10 @@ class FilesController {
   }
 
   static async getShow(req, res) {
-    const token = req.headers['x-token'];
-    if (!token) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const userId = await redisClient.get(`auth_${token}`);
-    if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const usersCollection = await dbClient.db.collection('users');
-    const user = await usersCollection.findOne({ _id: ObjectId(userId) });
-    if (!user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
+    const userId = req.userId;
+    const user = req.user;
     const filesCollection = await dbClient.db.collection('files');
-    const fileForUser = await filesCollection.findOne({ userId: ObjectId(userId), _id: ObjectId(req.params.id)});
+    const fileForUser = await filesCollection.findOne({ userId: ObjectId(userId), _id: ObjectId(req.params.id) });
 
     if (!fileForUser) {
       return res.status(404).json({ error: 'Not found' });
@@ -131,7 +103,8 @@ class FilesController {
   }
 
   static async getIndex(req, res) {
-    // TODO
+    const userId = req.userId;
+    const user = req.user;
   }
 }
 
