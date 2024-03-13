@@ -88,7 +88,7 @@ class FilesController {
   }
 
   static async getIndex(req, res) {
-        return res.send("TODO");
+    return res.send('TODO');
   }
 }
 
