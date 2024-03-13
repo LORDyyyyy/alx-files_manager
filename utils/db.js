@@ -2,34 +2,30 @@ const mongodb = require('mongodb');
 
 class DBClient {
   constructor() {
-    this.db = null;
+    this.uri = `mongodb://${process.env.DB_HOST || 'localhost'}:${
+      process.env.DB_PORT || 27017
+    }/${process.env.DB_DATABASE || 'files_manager'}`;
 
-    this.mongoClient = new mongodb.MongoClient(
-      `mongodb://${process.env.DB_HOST || 'localhost'}:${
-        process.env.DB_PORT || 27017
-      }`,
-    );
+    this.client = new mongodb.MongoClient(this.uri);
 
-    this.mongoClient.connect((err) => {
+    this.client.connect((err) => {
       if (err) {
         console.log(err.message);
-        this.db = null;
-      } else {
-        this.db = this.mongoClient.db('files_manager');
+        this.client = null;
       }
     });
   }
 
   isAlive() {
-    return !!this.db;
+    return !!this.client;
   }
 
   async nbUsers() {
-    return this.db.collection('users').countDocuments();
+    return this.client.collection('users').countDocuments();
   }
 
   async nbFiles() {
-    return this.db.collection('files').countDocuments();
+    return this.client.collection('files').countDocuments();
   }
 }
 
