@@ -8,11 +8,12 @@ class DBClient {
 
     this.client = new mongodb.MongoClient(this.uri);
 
-    this.client.connect((err) => {
+    this.client.connect((err, client) => {
       if (err) {
         console.log(err.message);
         this.client = null;
       }
+      this.client = client;
     });
   }
 
