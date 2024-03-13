@@ -18,6 +18,9 @@ class AuthController {
     ).toString('utf-8');
 
     const [email, password] = decodedCredentials.split(':');
+    if (!email || !password) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
 
     const user = await dbClient.client
       .collection('users')
