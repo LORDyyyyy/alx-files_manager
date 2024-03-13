@@ -32,4 +32,6 @@ router.put(
   FilesController.putUnpublish,
 );
 
+router.get('/files/:id/data', MiddleWare.userAuth, FilesController.getFile);
+
 module.exports = router;
