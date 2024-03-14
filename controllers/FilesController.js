@@ -2,6 +2,7 @@ const { ObjectId } = require('mongodb');
 const { v4: uuidv4 } = require('uuid');
 const mime = require('mime-types');
 const fs = require('fs');
+const Queue = require('bull');
 const dbClient = require('../utils/db');
 
 class FilesController {
@@ -66,6 +67,14 @@ class FilesController {
 
     const { _id: id, ...rest } = result.ops[0];
     const newResult = { id, ...rest };
+
+    const fileQueue = Queue('fileQueue');
+    if (type === 'image') {
+      fileQueue.add({
+        userId,
+        fileId: id,
+      });
+    }
 
     return res.status(201).json(newResult);
   }
